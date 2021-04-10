@@ -3,8 +3,9 @@
 
 # Wonseok Hwang
 # Sep30, 2018
+from torch.autograd import grad
 
-
+import time
 import os, sys, argparse, re, json
 
 from matplotlib.pylab import *
@@ -272,6 +273,7 @@ def train(train_loader, train_table, model, model_bert, opt, bert_config, tokeni
         # Calculate loss & step
         loss = Loss_sw_se(s_sc, s_sa, s_wn, s_wc, s_wo, s_wv, g_sc, g_sa, g_wn, g_wc, g_wo, g_wvi)
 
+
         # Calculate gradient
         if iB % accumulate_gradients == 0:  # mode
             # at start, perform zero_grad
@@ -358,48 +360,49 @@ def report_detail(hds, nlu,
 
     print(f'cnt = {cnt} / {cnt_tot} ===============================')
 
-    print(f'headers: {hds}')
-    print(f'nlu: {nlu}')
+    # print(f'headers: {hds}')
+    # print(f'nlu: {nlu}')
 
-    # print(f's_sc: {s_sc[0]}')
-    # print(f's_sa: {s_sa[0]}')
-    # print(f's_wn: {s_wn[0]}')
-    # print(f's_wc: {s_wc[0]}')
-    # print(f's_wo: {s_wo[0]}')
-    # print(f's_wv: {s_wv[0][0]}')
-    print(f'===============================')
-    print(f'g_sc : {g_sc}')
-    print(f'pr_sc: {pr_sc}')
-    print(f'g_sa : {g_sa}')
-    print(f'pr_sa: {pr_sa}')
-    print(f'g_wn : {g_wn}')
-    print(f'pr_wn: {pr_wn}')
-    print(f'g_wc : {g_wc}')
-    print(f'pr_wc: {pr_wc}')
-    print(f'g_wo : {g_wo}')
-    print(f'pr_wo: {pr_wo}')
-    print(f'g_wv : {g_wv}')
-    # print(f'pr_wvi: {pr_wvi}')
-    print('g_wv_str:', g_wv_str)
-    print('p_wv_str:', pr_wv_str)
-    print(f'g_sql_q:  {g_sql_q}')
-    print(f'pr_sql_q: {pr_sql_q}')
-    print(f'g_ans: {g_ans}')
-    print(f'pr_ans: {pr_ans}')
-    print(f'--------------------------------')
+    # # print(f's_sc: {s_sc[0]}')
+    # # print(f's_sa: {s_sa[0]}')
+    # # print(f's_wn: {s_wn[0]}')
+    # # print(f's_wc: {s_wc[0]}')
+    # # print(f's_wo: {s_wo[0]}')
+    # # print(f's_wv: {s_wv[0][0]}')
+    # print(f'===============================')
+    # print(f'g_sc : {g_sc}')
+    # print(f'pr_sc: {pr_sc}')
+    # print(f'g_sa : {g_sa}')
+    # print(f'pr_sa: {pr_sa}')
+    # print(f'g_wn : {g_wn}')
+    # print(f'pr_wn: {pr_wn}')
+    # print(f'g_wc : {g_wc}')
+    # print(f'pr_wc: {pr_wc}')
+    # print(f'g_wo : {g_wo}')
+    # print(f'pr_wo: {pr_wo}')
+    # print(f'g_wv : {g_wv}')
+    # # print(f'pr_wvi: {pr_wvi}')
+    # print('g_wv_str:', g_wv_str)
+    # print('p_wv_str:', pr_wv_str)
+    # print(f'g_sql_q:  {g_sql_q}')
+    # print(f'pr_sql_q: {pr_sql_q}')
+    # print(f'g_ans: {g_ans}')
+    # print(f'pr_ans: {pr_ans}')
+    # print(f'--------------------------------')
 
-    print(cnt_list)
+    # print(cnt_list)
 
-    print(f'acc_lx = {cnt_lx / cnt:.3f}, acc_x = {cnt_x / cnt:.3f}\n',
-          f'acc_sc = {cnt_sc / cnt:.3f}, acc_sa = {cnt_sa / cnt:.3f}, acc_wn = {cnt_wn / cnt:.3f}\n',
-          f'acc_wc = {cnt_wc / cnt:.3f}, acc_wo = {cnt_wo / cnt:.3f}, acc_wv = {cnt_wv / cnt:.3f}')
-    print(f'===============================')
+    print(f'acc_lx = {cnt_lx / cnt:.3f}, acc_x = {cnt_x / cnt:.3f}\n')#,
+#          f'acc_sc = {cnt_sc / cnt:.3f}, acc_sa = {cnt_sa / cnt:.3f}, acc_wn = {cnt_wn / cnt:.3f}\n',
+#          f'acc_wc = {cnt_wc / cnt:.3f}, acc_wo = {cnt_wo / cnt:.3f}, acc_wv = {cnt_wv / cnt:.3f}')
+    # print(f'===============================')
 
 
 def test(data_loader, data_table, model, model_bert, bert_config, tokenizer,
          max_seq_length,
          num_target_layers, detail=False, st_pos=0, cnt_tot=1, EG=False, beam_size=4,
          path_db=None, dset_name='test'):
+    t0 = time.time()
     model.eval()
     model_bert.eval()
 
@@ -532,6 +535,7 @@ def test(data_loader, data_table, model, model_bert, bert_config, tokenizer,
                           g_sc, g_sa, g_wn, g_wc, g_wo, g_wv, g_wv_str, g_sql_q, g_ans,
                           pr_sc, pr_sa, pr_wn, pr_wc, pr_wo, pr_wv_str, pr_sql_q, pr_ans,
                           cnt_list1, current_cnt)
+        print(time.time()-t0)
 
     ave_loss /= cnt
     acc_sc = cnt_sc / cnt
@@ -663,6 +667,7 @@ if __name__ == '__main__':
     #     collate_fn=lambda x: x  # now dictionary values are not merged!
     # )
     ## 4. Build & Load models
+    print(len(dev_data),len(train_data))
     if not args.trained:
         model, model_bert, tokenizer, bert_config = get_models(args, BERT_PT_PATH)
     else:
@@ -761,3 +766,20 @@ if __name__ == '__main__':
                 num_target_layers=args.num_target_layers,
                 beam_size=1, show_table=False, show_answer_only=False
             )
+
+
+    with torch.no_grad():
+        acc_dev, results_dev, cnt_list = test(dev_loader,
+                                              dev_table,
+                                              model,
+                                              model_bert,
+                                              bert_config,
+                                              tokenizer,
+                                              args.max_seq_length,
+                                              args.num_target_layers,
+                                              detail=True,
+                                              beam_size=1,
+                                              path_db=path_wikisql,
+                                              st_pos=0,
+                                              cnt_tot = len(dev_data),
+                                              dset_name='dev', EG=args.EG)
