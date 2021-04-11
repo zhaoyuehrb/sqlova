@@ -135,16 +135,16 @@ def get_bert(BERT_PT_PATH, bert_type, do_lower_case, no_pretraining):
     return model_bert, tokenizer, bert_config
 
 
-def get_opt(model, model_bert, fine_tune):
+def get_opt(model, model_bert, fine_tune, lr = 0.001):
     if fine_tune:
         opt = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()),
-                               lr=args.lr, weight_decay=0)
+                               lr=lr, weight_decay=0)
 
         opt_bert = torch.optim.Adam(filter(lambda p: p.requires_grad, model_bert.parameters()),
-                                    lr=args.lr_bert, weight_decay=0)
+                                    lr=lr, weight_decay=0)
     else:
         opt = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()),
-                               lr=args.lr, weight_decay=0)
+                               lr=lr, weight_decay=0)
         opt_bert = None
 
     return opt, opt_bert
@@ -535,7 +535,7 @@ def test(data_loader, data_table, model, model_bert, bert_config, tokenizer,
                           g_sc, g_sa, g_wn, g_wc, g_wo, g_wv, g_wv_str, g_sql_q, g_ans,
                           pr_sc, pr_sa, pr_wn, pr_wc, pr_wo, pr_wv_str, pr_sql_q, pr_ans,
                           cnt_list1, current_cnt)
-        print(time.time()-t0)
+        #print(time.time()-t0)
 
     ave_loss /= cnt
     acc_sc = cnt_sc / cnt
@@ -679,7 +679,7 @@ if __name__ == '__main__':
 
     ## 5. Get optimizers
     if args.do_train:
-        opt, opt_bert = get_opt(model, model_bert, args.fine_tune)
+        opt, opt_bert = get_opt(model, model_bert, args.fine_tune, args.lr)
 
         ## 6. Train
         acc_lx_t_best = -1
